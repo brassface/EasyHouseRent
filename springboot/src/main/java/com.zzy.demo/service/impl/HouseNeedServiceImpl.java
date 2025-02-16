@@ -1,39 +1,109 @@
 package com.zzy.demo.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zzy.demo.dto.HouseNeedDto;
 import com.zzy.demo.entity.*;
-import com.zzy.demo.entity.HouseNeed;
 import com.zzy.demo.mapper.HouseNeedMapper;
 import com.zzy.demo.mapper.PictureMapper;
 import com.zzy.demo.mapper.UserMapper;
 import com.zzy.demo.service.HouseNeedService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import com.zzy.demo.utils.RedisUtil;
 
 @Service
 public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed> implements HouseNeedService {
-    @Resource
-    PictureMapper pictureMapper;
-    @Resource
-    UserMapper userMapper;
-    private final int type=2;
 
+    @Resource
+    private PictureMapper pictureMapper;
+
+    @Resource
+    private UserMapper userMapper;
+
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
+
+    @Resource
+    private RedisUtil redisUtil;
+
+    private final int type = 2;
+    private static final String HOUSE_NEED_CACHE_PREFIX = "house_need:";
+
+    // 根据ID查询
     @Override
-    public Page<HouseNeedDto> pageWithDto(Page<HouseNeed> page, Wrapper<HouseNeed> wrapper) {
-        Page<HouseNeed> houseNeedPage = this.page(page, wrapper);
+    public HouseNeedDto getDtoById(Long id) {
+        String cacheKey = HOUSE_NEED_CACHE_PREFIX + id;
 
+        // 先尝试从缓存中获取
+        HouseNeedDto cachedDto = redisUtil.getCache(cacheKey, HouseNeedDto.class);
+        if (cachedDto != null) {
+            return cachedDto; // 如果缓存中有数据，直接返回
+        }
+
+        // 如果缓存中没有，则从数据库获取数据
+        HouseNeed houseNeed = this.getBaseMapper().selectById(id);
+        if (houseNeed != null) {
+            HouseNeedDto dto = this.convertToDto(houseNeed);
+            // 将查询到的结果存入缓存，设置过期时间（例如 10 分钟）
+            redisUtil.setCache(cacheKey, dto, 10, TimeUnit.MINUTES);
+            return dto;
+        } else {
+            return null;
+        }
+    }
+
+    // 分页查询
+    @Override
+    public Page<HouseNeedDto> pageWithDto(Integer pageNum, Integer pageSize, String search, Integer author, String province, String city, String town) {
+        // 使用 RedisUtil 中的 generateCacheKey 方法生成缓存键
+        String cacheKey = HOUSE_NEED_CACHE_PREFIX + "page"+ pageNum + "_" + pageSize + "_" + search + "_" + author + "_" + province + "_" + city + "_" + town;
+        // 先尝试从缓存中获取分页数据
+        Page<HouseNeedDto> cachedPage = redisUtil.getCache(cacheKey, Page.class);
+        if (cachedPage != null) {
+            return cachedPage; // 如果缓存中有分页数据，直接返回
+        }
+        LambdaQueryWrapper<HouseNeed> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(HouseNeed::getFlag, 0);
+        if (author > 0) {
+            wrapper.eq(HouseNeed::getAuthor, author);
+        }
+        if (StrUtil.isNotBlank(province)) {
+            wrapper.eq(HouseNeed::getProvince, province);
+            if (StrUtil.isNotBlank(city)) {
+                wrapper.eq(HouseNeed::getCity, city);
+                if (StrUtil.isNotBlank(town)) {
+                    wrapper.eq(HouseNeed::getTown, town);
+                }
+            }
+        }
+        if (StrUtil.isNotBlank(search)) {
+            wrapper.like(HouseNeed::getTitle, search)
+                    .or()
+                    .like(HouseNeed::getTips, search)
+                    .or()
+                    .like(HouseNeed::getProvince, search)
+                    .or()
+                    .like(HouseNeed::getCity, search)
+                    .or()
+                    .like(HouseNeed::getTown, search);
+        }
+        wrapper.orderByDesc(HouseNeed::getId);
+
+        // 如果缓存中没有，则从数据库查询数据
+        Page<HouseNeed> houseNeedPage = this.page(new Page<>(pageNum, pageSize), wrapper);
         List<HouseNeedDto> houseNeedDtoList = houseNeedPage.getRecords().stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
@@ -42,9 +112,14 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
         houseNeedDtoPage.setTotal(houseNeedPage.getTotal());
         houseNeedDtoPage.setCurrent(houseNeedPage.getCurrent());
         houseNeedDtoPage.setSize(houseNeedPage.getSize());
+
+        // 将分页查询结果存入缓存，并设置过期时间
+        redisUtil.setCache(cacheKey, houseNeedDtoPage, 10, TimeUnit.MINUTES);
+
         return houseNeedDtoPage;
     }
 
+    // 将 HouseNeed 转换为 HouseNeedDto
     private HouseNeedDto convertToDto(HouseNeed houseNeed) {
         HouseNeedDto dto = new HouseNeedDto();
         dto.setId(houseNeed.getId());
@@ -59,7 +134,6 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
         if (houseNeed.getTips() != null) {
             dto.setTips(Arrays.asList(houseNeed.getTips().split("``")));
         }
-        System.out.println(dto);
         dto.setPictures(pictureMapper.selectList(new LambdaQueryWrapper<Picture>()
                         .eq(Picture::getBelongId, dto.getId())
                         .eq(Picture::getType, type)
@@ -74,14 +148,26 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
         return dto;
     }
 
+    // 更新缓存
+    private void updateCacheAfterChange(Long id) {
+        String cacheKey = HOUSE_NEED_CACHE_PREFIX + id;
+        redisTemplate.opsForValue().getOperations().delete(cacheKey);  // 删除缓存
+
+        // 删除分页缓存
+        String pageCacheKeyPrefix = HOUSE_NEED_CACHE_PREFIX + "page:";
+        redisTemplate.opsForValue().getOperations().keys(pageCacheKeyPrefix + "*")
+                .forEach(key -> redisTemplate.opsForValue().getOperations().delete(key)); // 清除分页缓存
+    }
+
+    // 添加 HouseNeedDto
     @Transactional
     @Override
-    public boolean saveDto(HouseNeedDto dto){
-        HouseNeed houseNeed=new HouseNeed(dto);
+    public boolean saveDto(HouseNeedDto dto) {
+        HouseNeed houseNeed = new HouseNeed(dto);
         this.getBaseMapper().insert(houseNeed);
-        List<String> pictureList=dto.getPictures();
-        Picture picture=new Picture();
-        for(int i=0;i<pictureList.size();i++){
+        List<String> pictureList = dto.getPictures();
+        Picture picture = new Picture();
+        for (int i = 0; i < pictureList.size(); i++) {
             picture.setId(null);
             picture.setImage(pictureList.get(i));
             picture.setType(type);
@@ -89,26 +175,31 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
             picture.setNo(i);
             pictureMapper.insert(picture);
         }
+
+        // 添加数据时更新缓存
+        this.updateCacheAfterChange(houseNeed.getId().longValue());
+
         return true;
     }
 
+    // 更新 HouseNeedDto
     @Transactional
     @Override
-    public boolean updateDtoById(HouseNeedDto dto){
-        HouseNeed houseNeed=new HouseNeed(dto);
+    public boolean updateDtoById(HouseNeedDto dto) {
+        HouseNeed houseNeed = new HouseNeed(dto);
         this.getBaseMapper().updateById(houseNeed);
-        List<Picture> pictureList0=pictureMapper.selectList(new LambdaQueryWrapper<Picture>()
+        List<Picture> pictureList0 = pictureMapper.selectList(new LambdaQueryWrapper<Picture>()
                 .eq(Picture::getBelongId, dto.getId())
                 .eq(Picture::getType, type)
                 .eq(Picture::getFlag, 0));
-        for(Picture pic:pictureList0){
+        for (Picture pic : pictureList0) {
             pic.setFlag(1);
             pictureMapper.updateById(pic);
         }
         pictureList0.clear();
-        List<String> pictureList=dto.getPictures();
-        Picture picture=new Picture();
-        for(int i=0;i<pictureList.size();i++){
+        List<String> pictureList = dto.getPictures();
+        Picture picture = new Picture();
+        for (int i = 0; i < pictureList.size(); i++) {
             picture.setId(null);
             picture.setImage(pictureList.get(i));
             picture.setType(type);
@@ -117,38 +208,40 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
             picture.setNo(i);
             pictureMapper.insert(picture);
         }
+
+        // 更新数据时更新缓存
+        this.updateCacheAfterChange(dto.getId().longValue());
+
         return true;
     }
 
+    // 删除 HouseNeedDto
     @Transactional
     @Override
-    public boolean deleteDtoById(Long id){
+    public boolean deleteDtoById(Long id) {
         this.getBaseMapper().deleteById(id);
-        List<Picture> pictureList0=pictureMapper.selectList(new LambdaQueryWrapper<Picture>()
+        List<Picture> pictureList0 = pictureMapper.selectList(new LambdaQueryWrapper<Picture>()
                 .eq(Picture::getBelongId, id)
                 .eq(Picture::getType, type)
                 .eq(Picture::getFlag, 0));
-        for(Picture pic:pictureList0){
+        for (Picture pic : pictureList0) {
             pic.setFlag(1);
             pictureMapper.updateById(pic);
         }
+
+        // 删除数据时更新缓存
+        this.updateCacheAfterChange(id);
+
         return true;
     }
 
-    public HouseNeedDto getDtoById(Long id){
-        HouseNeed houseNeed = this.getBaseMapper().selectById(id);
-        if (houseNeed!=null) {
-            return this.convertToDto(houseNeed);
-        }else {
-            return null;
-        }
-    }
     @Override
     public long countByFlag(int flag) {
         QueryWrapper<HouseNeed> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("flag", flag);
         return this.count(queryWrapper);
     }
+
     @Override
     public List<Map<String, Object>> getCityStatistics(int flag) {
         QueryWrapper<HouseNeed> queryWrapper = new QueryWrapper<>();
@@ -157,6 +250,7 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
                 .groupBy("city"); // 按城市分组
         return this.listMaps(queryWrapper); // 使用 listMaps 返回统计结果
     }
+
     @Override
     public Map<String, Integer> getTipsStatistics(int flag) {
         QueryWrapper<HouseNeed> queryWrapper = new QueryWrapper<>();

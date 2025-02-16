@@ -5,11 +5,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zzy.demo.dto.HouseTalkDto;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Data
 @TableName("house_talk")
-public class HouseTalk {
+public class HouseTalk implements Serializable {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private String title;

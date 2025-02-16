@@ -73,7 +73,7 @@ public class FileController {
                 os.close();
             }
         }catch (Exception e){
-            System.out.println("文件下载失败");
+            e.printStackTrace();
         }
     }
     /**

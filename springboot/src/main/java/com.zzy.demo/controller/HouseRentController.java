@@ -26,7 +26,6 @@ public class HouseRentController {
     //添加
     @PostMapping
     public Result<?> save(@RequestBody HouseRentDto entity) {
-        System.out.println(entity);
         if (houseRentService.saveDto(entity)) {
             return Result.success();
         } else {
@@ -109,6 +108,7 @@ public class HouseRentController {
                     .or()
                     .like(HouseRent::getTips, search);
         }
+        wrapper.orderByDesc(HouseRent::getId);
         Page<HouseRentDto> entityPage = houseRentService.pageWithDto(new Page<>(pageNum, pageSize), wrapper);
         return Result.success(entityPage);
     }

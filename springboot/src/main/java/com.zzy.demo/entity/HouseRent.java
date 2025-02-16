@@ -4,11 +4,12 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.zzy.demo.dto.HouseRentDto;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
 @TableName("house_rent")
-public class HouseRent {
+public class HouseRent implements Serializable {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private String title;

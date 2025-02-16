@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zzy.demo.common.Result;
+import com.zzy.demo.entity.TalkItem;
 import com.zzy.demo.entity.User;
 import com.zzy.demo.service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -63,6 +64,7 @@ public class UserController {
         if (StrUtil.isNotBlank(search)) {
             wrapper.like(User::getName, search);
         }
+        wrapper.orderByDesc(User::getId);
         Page<User> entityPage = userservice.page(new Page<>(pageNum, pageSize), wrapper);
         return Result.success(entityPage);
     }
@@ -93,7 +95,6 @@ public class UserController {
     //修改密码
     @PostMapping("/password")
     public Result<?> EditPw(@RequestBody Map<String, Object> request) {
-        System.out.println(request.keySet());
         Integer id = (Integer) request.get("id");
         String oldPw = (String) request.get("oldPw");
         String newPw = (String) request.get("newPw");

@@ -5,11 +5,12 @@ import com.zzy.demo.dto.HouseNeedDto;
 import com.zzy.demo.dto.HouseRentDto;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
 @TableName("house_need")
-public class HouseNeed {
+public class HouseNeed implements Serializable {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private String title;

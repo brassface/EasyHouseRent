@@ -90,33 +90,7 @@ public class HouseNeedController {
             @RequestParam(defaultValue = "") String province,
             @RequestParam(defaultValue = "") String city,
             @RequestParam(defaultValue = "") String town) {
-        LambdaQueryWrapper<HouseNeed> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(HouseNeed::getFlag, 0);
-        if (author > 0) {
-            wrapper.eq(HouseNeed::getAuthor, author);
-        }
-        if (StrUtil.isNotBlank(province)) {
-            wrapper.eq(HouseNeed::getProvince, province);
-            if (StrUtil.isNotBlank(city)) {
-                wrapper.eq(HouseNeed::getCity, city);
-                if (StrUtil.isNotBlank(town)) {
-                    wrapper.eq(HouseNeed::getTown, town);
-                }
-            }
-        }
-        if (StrUtil.isNotBlank(search)) {
-            wrapper.like(HouseNeed::getTitle, search)
-                    .or()
-                    .like(HouseNeed::getTips, search)
-                    .or()
-                    .like(HouseNeed::getProvince, search)
-                    .or()
-                    .like(HouseNeed::getCity, search)
-                    .or()
-                    .like(HouseNeed::getTown, search);
-        }
-        Page<HouseNeedDto> entityPage = houseNeedService.pageWithDto(new Page<>(pageNum, pageSize), wrapper);
-        return Result.success(entityPage);
+        return Result.success(houseNeedService.pageWithDto(pageNum, pageSize, search, author, province, city, town));
     }
 
     @GetMapping("/statistics")

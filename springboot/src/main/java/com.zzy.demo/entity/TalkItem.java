@@ -6,11 +6,12 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Data
 @TableName("talk_item")
-public class TalkItem {
+public class TalkItem implements Serializable {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private String content;

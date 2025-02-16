@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zzy.demo.common.Result;
 import com.zzy.demo.dto.TalkItemDto;
+import com.zzy.demo.entity.HouseTalk;
 import com.zzy.demo.entity.TalkItem;
 import com.zzy.demo.service.TalkItemService;
 import org.springframework.web.bind.annotation.*;
@@ -65,6 +66,7 @@ public class TalkItemController {
         LambdaQueryWrapper<TalkItem> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(TalkItem::getBelongItem, belongItem);
         wrapper.eq(TalkItem::getFlag, 0);
+        wrapper.orderByDesc(TalkItem::getId);
         Page<TalkItemDto> entityPage = talkItemService.pageWithDto(new Page<>(pageNum, pageSize), wrapper);
         return Result.success(entityPage);
     }

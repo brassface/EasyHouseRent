@@ -99,6 +99,7 @@ public class HouseTalkController {
                 return Result.error("-1", "查询失败");
             }
         }
+        wrapper.orderByDesc(HouseTalk::getId);
         Page<HouseTalkDto> entityPage = houseTalkService.pageWithDto(new Page<>(pageNum, pageSize), wrapper);
         return Result.success(entityPage);
     }

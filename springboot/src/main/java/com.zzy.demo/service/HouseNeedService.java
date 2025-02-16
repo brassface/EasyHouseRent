@@ -1,6 +1,7 @@
 package com.zzy.demo.service;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zzy.demo.dto.HouseNeedDto;
 import com.zzy.demo.dto.HouseRentDto;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface HouseNeedService extends IService<HouseNeed> {
-    Page<HouseNeedDto> pageWithDto(Page<HouseNeed> page, Wrapper<HouseNeed> wrapper);
+    Page<HouseNeedDto> pageWithDto(Integer pageNum, Integer pageSize, String search, Integer author, String province, String city, String town);
     boolean saveDto(HouseNeedDto dto);
     boolean updateDtoById(HouseNeedDto dto);
     boolean deleteDtoById(Long id);

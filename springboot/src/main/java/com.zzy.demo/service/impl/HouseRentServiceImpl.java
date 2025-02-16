@@ -60,7 +60,6 @@ public class HouseRentServiceImpl extends ServiceImpl<HouseRentMapper, HouseRent
         if (houseRent.getTips() != null) {
             dto.setTips(Arrays.asList(houseRent.getTips().split("``")));
         }
-        System.out.println(dto);
         dto.setPictures(pictureMapper.selectList(new LambdaQueryWrapper<Picture>()
                         .eq(Picture::getBelongId, dto.getId())
                         .eq(Picture::getType, type)
