@@ -56,6 +56,15 @@ public class RedisUtil {
             e.printStackTrace();
         }
     }
+    public void updateCacheAfterChange(String cachePrefix, Long id) {
+        String cacheKey = cachePrefix + id;
+        redisTemplate.opsForValue().getOperations().delete(cacheKey);  // 删除缓存
+
+        // 删除分页缓存
+        String pageCacheKeyPrefix = cachePrefix + "page:";
+        redisTemplate.opsForValue().getOperations().keys(pageCacheKeyPrefix + "*")
+                .forEach(key -> redisTemplate.opsForValue().getOperations().delete(key)); // 清除分页缓存
+    }
 
     // 删除缓存
     public void deleteCache(String key) {

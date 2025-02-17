@@ -69,7 +69,7 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
     @Override
     public Page<HouseNeedDto> pageWithDto(Integer pageNum, Integer pageSize, String search, Integer author, String province, String city, String town) {
         // 使用 RedisUtil 中的 generateCacheKey 方法生成缓存键
-        String cacheKey = HOUSE_NEED_CACHE_PREFIX + "page"+ pageNum + "_" + pageSize + "_" + search + "_" + author + "_" + province + "_" + city + "_" + town;
+        String cacheKey = HOUSE_NEED_CACHE_PREFIX + "page:"+ pageNum + "_" + pageSize + "_" + search + "_" + author + "_" + province + "_" + city + "_" + town;
         // 先尝试从缓存中获取分页数据
         Page<HouseNeedDto> cachedPage = redisUtil.getCache(cacheKey, Page.class);
         if (cachedPage != null) {
@@ -148,17 +148,6 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
         return dto;
     }
 
-    // 更新缓存
-    private void updateCacheAfterChange(Long id) {
-        String cacheKey = HOUSE_NEED_CACHE_PREFIX + id;
-        redisTemplate.opsForValue().getOperations().delete(cacheKey);  // 删除缓存
-
-        // 删除分页缓存
-        String pageCacheKeyPrefix = HOUSE_NEED_CACHE_PREFIX + "page:";
-        redisTemplate.opsForValue().getOperations().keys(pageCacheKeyPrefix + "*")
-                .forEach(key -> redisTemplate.opsForValue().getOperations().delete(key)); // 清除分页缓存
-    }
-
     // 添加 HouseNeedDto
     @Transactional
     @Override
@@ -177,7 +166,7 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
         }
 
         // 添加数据时更新缓存
-        this.updateCacheAfterChange(houseNeed.getId().longValue());
+        redisUtil.updateCacheAfterChange(HOUSE_NEED_CACHE_PREFIX, houseNeed.getId().longValue());
 
         return true;
     }
@@ -210,7 +199,7 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
         }
 
         // 更新数据时更新缓存
-        this.updateCacheAfterChange(dto.getId().longValue());
+        redisUtil.updateCacheAfterChange(HOUSE_NEED_CACHE_PREFIX, dto.getId().longValue());
 
         return true;
     }
@@ -230,7 +219,7 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
         }
 
         // 删除数据时更新缓存
-        this.updateCacheAfterChange(id);
+        redisUtil.updateCacheAfterChange(HOUSE_NEED_CACHE_PREFIX, id);
 
         return true;
     }
