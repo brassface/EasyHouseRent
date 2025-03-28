@@ -1,4 +1,5 @@
 <template>
+  <div style="height: 80px"></div>
   <div>
     <header class="talk-navbar">
       <h2>正在显示 {{ talk_total }} 个租友帖子中的 {{ talk_tableData.length }} 个</h2>
@@ -84,7 +85,7 @@
                   <img :src="item.image || talk_defaultImage" alt="用户头像" class="talk-user-avatar"
                        style="position: absolute;top: 0"/>
                   <div class="talk-user-details" style="margin-left: 70px">
-                    <div class="talk-user-name">{{item.name.length > 93 ? talk_form.name.slice(0, 90) + '...' : talk_form.name }}</div>
+                    <div class="talk-user-name">{{item.name.length > 93 ? item.name.slice(0, 90) + '...' : item.name }}</div>
                     <div class="talk-user-talk">
                       <template v-if="item.showFull">
                         {{ item.content }}
@@ -201,7 +202,6 @@ export default {
       }).then((res) => {
         this.talk_talkData = res.data.records;
         this.talk_talkTotal = res.data.total;
-        console.log(this.talk_talkTotal)
       });
     },
     talk_postComment() {
@@ -209,6 +209,7 @@ export default {
         this.$message.error("评论内容不能为空");
         return;
       }
+      console.log(this.talk_user)
       request.post("/api/talk_item", {
         content: this.talk_newComment.content,
         belongItem: this.talk_form.id,

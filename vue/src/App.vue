@@ -18,7 +18,7 @@ export default {
   },
   computed: {
     layoutComponent() {
-      if (this.$route.path.endsWith('/login') || this.$route.path.endsWith('/register')) {
+      if (this.$route.path.endsWith('/login/') || this.$route.path.endsWith('/register/')) {
         return 'div';
       } else {
         if (this.$route.path.startsWith('/admin')) {

@@ -1,4 +1,5 @@
 <template>
+  <div style="height: 80px"></div>
   <div>
     <header class="need-navbar">
       <h2>正在显示 {{ need_total }} 个租房需求中的 {{ need_tableData.length }} 个</h2>
@@ -40,17 +41,17 @@
              :key="item.id"
              @click="need_showDetails(item)"
              style="cursor: pointer;">
-          <div class="need-image-container" style="position: relative;">
-            <img class="need-listing-image" :src="item.pictures[0] || need_defaultImage" alt="图片" />
-          </div>
+<!--          <div class="need-image-container" style="position: relative;">-->
+<!--            <img class="need-listing-image" :src="item.pictures[0] || need_defaultImage" alt="图片" />-->
+<!--          </div>-->
           <div class="need-listing-info">
             <div class="need-info-top">
               <h3>{{ item.province + ' ' + item.city + ' ' + item.town }}</h3>
             </div>
             <div class="need-info-bottom">
               <div class="need-info-left">
-                <p>最高 {{ item.price }} 元/月</p>
-                <p>最低面积 {{ item.area }} 平米</p>
+                <p>期望价格 {{ item.price }} 元/月</p>
+                <p>期望面积 {{ item.area }} 平米</p>
               </div>
               <div class="need-user-info">
                 <img class="need-user-avatar" :src="item.image || need_defaultImage" alt="用户头像" />
@@ -103,7 +104,7 @@
         background
         @current-change="need_handleCurrentChange"
         :current-page="need_currentPage"
-        :page-size="8"
+        :page-size="12"
         layout="prev, pager, next, jumper"
         :total="need_total"
         style="margin-top: 10px; margin-bottom: 40px; display: flex; justify-content: center;">
@@ -118,7 +119,7 @@ export default {
   data() {
     return {
       need_currentPage: 1,
-      need_pageSize: 8,
+      need_pageSize: 12,
       need_search: '',
       need_total: 0,
       need_tableData: [],

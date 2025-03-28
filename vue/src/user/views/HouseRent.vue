@@ -1,4 +1,5 @@
 <template>
+  <div style="height: 80px"></div>
   <div>
     <header class="rent-navbar">
       <h2>正在显示 {{ rent_total }} 个房源信息中的 {{ rent_tableData.length }} 个</h2>

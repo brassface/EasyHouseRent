@@ -20,7 +20,7 @@ export default {
     Header,
   },
   created() {
-    if (sessionStorage.getItem('user') === undefined) {
+    if (sessionStorage.getItem('user') === null) {
       this.$router.push("/user/login/");
     } else {
       let user = JSON.parse(sessionStorage.getItem('user'));

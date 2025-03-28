@@ -131,7 +131,7 @@
                     </div>
                     <div class="user-date">
                       编辑于 {{ item.date }}
-                      <span v-if="item.author === user.id" class="delete-action" @click="deleteComment(item.id)">删除</span>
+                      <span v-if="item.author === user.id || user.role===1" class="delete-action" @click="deleteComment(item.id)">删除</span>
                     </div>
                   </div>
                 </div>
@@ -154,7 +154,7 @@
 
     <div v-if="showModal" class="push-modal-overlay">
       <div class="modal-content">
-        <h3>编辑帖子</h3>
+        <h3>输入帖子信息</h3>
         <form @submit.prevent="handleSubmit">
           <div class="form-group">
             <label for="title">标题:</label>

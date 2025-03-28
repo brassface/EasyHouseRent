@@ -65,7 +65,7 @@
         </el-form-item>
       </el-form>
       <el-form :model="form" label-width="120px">
-        <el-form-item label="图片">
+        <el-form-item label="头像">
           <el-upload ref="upload" :on-success="filesUploadSuccess" action="/api/files/upload">
             <el-button type="primary">点击上传</el-button>
           </el-upload>
@@ -81,21 +81,21 @@
     <el-dialog
         v-model="vis"
         title="详情"
-        width="60%">
-      <el-form :model="form" label-width="120px">
+        width="40%">
+      <el-form :model="form" label-width="80px">
         <el-form-item label="用户名">
-          <el-input v-model="form.username" readonly style="width: 50%"></el-input>
+          <el-input v-model="form.username" readonly style="width: 80%"></el-input>
         </el-form-item>
         <el-form-item label="姓名">
-          <el-input v-model="form.name" readonly style="width: 50%"></el-input>
+          <el-input v-model="form.name" readonly style="width: 80%"></el-input>
         </el-form-item>
         <el-form-item label="手机号码">
-          <el-input v-model="form.phone" readonly style="width: 50%"></el-input>
+          <el-input v-model="form.phone" readonly style="width: 80%"></el-input>
         </el-form-item>
         <el-form-item label="地址">
-          <el-input v-model="form.address" readonly style="width: 50%"></el-input>
+          <el-input v-model="form.address" readonly style="width: 80%"></el-input>
         </el-form-item>
-        <el-form-item label="图片">
+        <el-form-item label="头像">
           <el-image :src="form.image" style="width: 50%"></el-image>
         </el-form-item>
       </el-form>

@@ -38,13 +38,6 @@
           <div>{{ scope.row.title }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="图片" prop="pictures">
-        <template #default="scope">
-          <div style="width: 100px; height: 80px; overflow: hidden;">
-            <img :src="scope.row.pictures[0] || defaultImage" alt="房源图片" style="width: 100%; height: auto;"/>
-          </div>
-        </template>
-      </el-table-column>
       <el-table-column label="位置" prop="location">
         <template #default="scope">
           <div>{{ scope.row.province + ' ' + scope.row.city + ' ' + scope.row.town }}</div>
@@ -87,7 +80,7 @@
     </el-pagination>
     <div v-if="showModal" class="push-modal-overlay">
       <div class="modal-content">
-        <h3>编辑租房需求</h3>
+        <h3>输入租房需求</h3>
         <form @submit.prevent="handleSubmit">
           <div class="form-group">
             <label for="title">标题:</label>
@@ -195,23 +188,6 @@
               <i class="fa fa-plus"></i> 添加标签
             </button>
           </div>
-          <div class="form-group">
-            <label>图片上传:</label>
-            <input type="file" multiple @change="handleFileUpload" />
-            <div class="image-preview">
-              <div v-for="(picture, index) in form.pictures" class="image-container">
-                <img
-                    :key="index"
-                    :src="picture"
-                    alt="预览图片"
-                    class="preview-image"
-                />
-                <button type="button" class="remove-image-button" @click="removePicture(index)">
-                  <i class="fa fa-times"></i>X
-                </button>
-              </div>
-            </div>
-          </div>
           <div class="form-actions">
             <button type="submit" class="submit-button">提交</button>
             <button type="button" class="cancel-button" @click="closeModal">取消</button>
@@ -229,11 +205,6 @@
       </div>
       <div class="modal-body">
         <div class="details">
-          <div class="details-images">
-            <div v-for="(pic, index) in form.pictures.slice(0, 12)" :key="index" class="image-wrapper">
-              <img v-if="pic && pic.length" :src="pic" alt="房源图片" class="details-image"/>
-            </div>
-          </div>
           <h1>{{ form.province }} {{ form.city }} {{ form.town }}</h1>
           <h2 style="margin-top: 10px">
             <strong>￥{{ form.price }} / 月</strong>
@@ -331,11 +302,15 @@ export default {
   },
   methods: {
     load() {
+      console.log('load')
       request.get(`/api/house_need`, {
         params: {
           pageNum: this.curneedPage,
           pageSize: this.pageSize,
-          search: this.search
+          search: this.search,
+          province: this.form.province,
+          city: this.form.city,
+          town: this.form.town
         }
       }).then(res => {
         if (res.code==='0') {
@@ -390,10 +365,6 @@ export default {
         alert("请输入有效的面积，最多两位小数。");
         return;
       }
-      if (this.form.pictures.length === 0) {
-        alert("请上传至少一张图片。");
-        return;
-      }
       if (this.form.id) {
         request.put("/api/house_need", this.form).then(res => {
           if (res.code === '0') {
@@ -444,38 +415,6 @@ export default {
     },
     removeTip(index) {
       this.form.tips.splice(index, 1);
-    },
-    async handleFileUpload(event) {
-      if (this.form.pictures.length > 8) {
-        this.$message.warning('最多上传9张图片');
-        return;
-      }
-      const files = Array.from(event.target.files);
-      const formData = new FormData();
-      for (const file of files) {
-        formData.append('file', file);
-
-        try {
-          const res = await request.post('/api/files/upload', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          });
-          if (res.code === '0') {
-            this.form.pictures.push(res.data);
-            this.$message.success('图片上传成功');
-          } else {
-            this.$message.error(`图片上传失败: ${res.message}`);
-          }
-        } catch (error) {
-          console.error('图片上传异常:', error);
-          this.$message.error('图片上传失败，请重试');
-        }
-        formData.delete('file');
-      }
-    },
-    removePicture(index) {
-      this.form.pictures.splice(index, 1);
     },
     handleKeyPress(event) {
       if (event.key === "Escape") {

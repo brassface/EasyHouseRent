@@ -49,9 +49,6 @@
     <main>
       <div class="listings">
         <div v-for="item in need_tableData" :key="item.id" class="listing" style="cursor: pointer;">
-          <div class="image-container">
-            <img :src="item.pictures[0] || defaultImage" alt="图片" class="listing-image"/>
-          </div>
           <div class="listing-info">
             <div class="info-top">
               <h3>{{ item.province + ' ' + item.city + ' ' + item.town }}</h3>
@@ -351,7 +348,7 @@ export default {
     need_load() {
       request.get(`/api/house_need`, {
         params: {
-          pageSize: 4,
+          pageSize: 8,
         },
       }).then((res) => {
         this.need_tableData = res.data.records;

@@ -53,11 +53,9 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
             return cachedDto; // 如果缓存中有数据，直接返回
         }
 
-        // 如果缓存中没有，则从数据库获取数据
         HouseNeed houseNeed = this.getBaseMapper().selectById(id);
         if (houseNeed != null) {
             HouseNeedDto dto = this.convertToDto(houseNeed);
-            // 将查询到的结果存入缓存，设置过期时间（例如 10 分钟）
             redisUtil.setCache(cacheKey, dto, 10, TimeUnit.MINUTES);
             return dto;
         } else {
@@ -68,12 +66,10 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
     // 分页查询
     @Override
     public Page<HouseNeedDto> pageWithDto(Integer pageNum, Integer pageSize, String search, Integer author, String province, String city, String town) {
-        // 使用 RedisUtil 中的 generateCacheKey 方法生成缓存键
         String cacheKey = HOUSE_NEED_CACHE_PREFIX + "page:"+ pageNum + "_" + pageSize + "_" + search + "_" + author + "_" + province + "_" + city + "_" + town;
-        // 先尝试从缓存中获取分页数据
         Page<HouseNeedDto> cachedPage = redisUtil.getCache(cacheKey, Page.class);
         if (cachedPage != null) {
-            return cachedPage; // 如果缓存中有分页数据，直接返回
+            return cachedPage;
         }
         LambdaQueryWrapper<HouseNeed> wrapper = Wrappers.lambdaQuery();
         wrapper.eq(HouseNeed::getFlag, 0);
@@ -101,8 +97,6 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
                     .like(HouseNeed::getTown, search);
         }
         wrapper.orderByDesc(HouseNeed::getId);
-
-        // 如果缓存中没有，则从数据库查询数据
         Page<HouseNeed> houseNeedPage = this.page(new Page<>(pageNum, pageSize), wrapper);
         List<HouseNeedDto> houseNeedDtoList = houseNeedPage.getRecords().stream()
                 .map(this::convertToDto)
@@ -112,8 +106,6 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
         houseNeedDtoPage.setTotal(houseNeedPage.getTotal());
         houseNeedDtoPage.setCurrent(houseNeedPage.getCurrent());
         houseNeedDtoPage.setSize(houseNeedPage.getSize());
-
-        // 将分页查询结果存入缓存，并设置过期时间
         redisUtil.setCache(cacheKey, houseNeedDtoPage, 10, TimeUnit.MINUTES);
 
         return houseNeedDtoPage;
@@ -164,8 +156,6 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
             picture.setNo(i);
             pictureMapper.insert(picture);
         }
-
-        // 添加数据时更新缓存
         redisUtil.updateCacheAfterChange(HOUSE_NEED_CACHE_PREFIX, houseNeed.getId().longValue());
 
         return true;
@@ -197,8 +187,6 @@ public class HouseNeedServiceImpl extends ServiceImpl<HouseNeedMapper, HouseNeed
             picture.setNo(i);
             pictureMapper.insert(picture);
         }
-
-        // 更新数据时更新缓存
         redisUtil.updateCacheAfterChange(HOUSE_NEED_CACHE_PREFIX, dto.getId().longValue());
 
         return true;

@@ -1,13 +1,9 @@
 <template>
   <div style="width: 100%;height: 100vh; display: flex;justify-content: center;align-items: center; background: linear-gradient(340deg, #68b4cc, #c69f3d);">
-    <div style="width: 320px; height: 400px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7); display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 15px; background-color: #5926e6;">
-      <h1 style="text-align: center; margin-top: 20px; font-size: 24px; color: #1c8f35; font-family: Arial; font-weight: bold;">欢迎使用</h1>
-      <h2 style="text-align: center; margin-top: 20px; font-size: 18px; color: #5aa5fc; font-family: Arial;">EasyHouseRent</h2>
-    </div>
-    <div style="width: 300px; height: 400px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; border-radius: 15px; background-color: #fa0b8e;">
+    <div style="width: 300px; height: 400px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; border-radius: 15px; background-color: #ffffff;">
       <el-form :model="form" size="normal" style="width: 260px;" ref="form" :rules="rules">
         <div style="width: 100%; height: 40px; margin-top: 10px; line-height: 40px; text-align: center;">
-          <span style="color: #0a2979; font-weight: bold; font-size: 28px;">登录</span>
+          <span style="color: #4b7700; font-weight: bold; font-size: 28px;">登录</span>
         </div>
         <el-form-item style="margin-top: 30px;" prop="username">
           <el-input v-model="form.username" prefix-icon="el-icon-user-solid" placeholder="请输入用户名" style="border-radius: 10px; border: 1px solid #30bcde;"></el-input>
@@ -56,7 +52,7 @@ export default {
   },
   methods:{
     toRegister() {
-      this.$router.push("/user/register")
+      this.$router.push("/user/register/")
     },
     login() {
       this.$refs['form'].validate((valid) => {

@@ -6,30 +6,31 @@
     <div class="search-bar">
       <div class="search-dropdowns">
         <select v-model="form.province" class="search-dropdown">
-          <option value="" disabled>全部</option>
+          <option disabled value="">全部</option>
           <option v-for="province in staticPlace" :key="province.name" :value="province.name">
             {{ province.name }}
           </option>
         </select>
 
         <select v-model="form.city" :disabled="cities.length === 0" class="search-dropdown">
-          <option value="" disabled>全部</option>
+          <option disabled value="">全部</option>
           <option v-for="city in cities" :key="city.name" :value="city.name">
             {{ city.name }}
           </option>
         </select>
 
         <select v-model="form.town" :disabled="towns.length === 0" class="search-dropdown">
-          <option value="" disabled>全部</option>
+          <option disabled value="">全部</option>
           <option v-for="town in towns" :key="town" :value="town">
             {{ town }}
           </option>
         </select>
       </div>
 
-      <input type="text" v-model="search" placeholder="输入关键词" class="search-input" />
+      <input v-model="search" class="search-input" placeholder="输入关键词" type="text"/>
       <button class="search-button" @click="load">搜索</button>
-      <button class="clear-button" @click="this.search=this.form.province=this.form.city=this.form.town=''">清空</button>
+      <button class="clear-button" @click="this.search=this.form.province=this.form.city=this.form.town=''">清空
+      </button>
       <button class="add-button" @click="add">新增</button>
     </div>
     <el-table :data="tableData" border stripe style="width: 100%;margin-top: 10px">
@@ -82,84 +83,84 @@
         :total="total"
         background
         layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange"
-        @curchange="handleCurrentChange">
+        @curchange="handleCurrentChange"
+        @size-change="handleSizeChange">
     </el-pagination>
     <div v-if="showModal" class="push-modal-overlay">
       <div class="modal-content">
-        <h3>编辑房源信息</h3>
+        <h3>输入房源信息</h3>
         <form @submit.prevent="handleSubmit">
           <div class="form-group">
             <label for="title">标题:</label>
             <input
-                v-model="form.title"
-                type="text"
                 id="title"
+                v-model="form.title"
                 placeholder="请输入标题"
                 required
+                type="text"
             />
           </div>
           <div class="form-group">
             <label for="content">房源描述:</label>
             <textarea
-                v-model="form.content"
                 id="content"
+                v-model="form.content"
                 placeholder="请输入房源描述"
-                rows="8"
                 required
+                rows="8"
                 style="width: 100%;max-width: 100%;min-width: 100%"
             ></textarea>
           </div>
           <div class="form-group">
             <label for="price">价格 (元/月):</label>
             <input
-                v-model="form.price"
-                type="number"
                 id="price"
+                v-model="form.price"
                 placeholder="请输入价格"
                 required
                 step="0.01"
+                type="number"
             />
           </div>
           <div class="form-group">
             <label for="province">省份:</label>
             <select
-                v-model="form.province"
                 id="province"
+                v-model="form.province"
                 class="form-control"
                 required
             >
-              <option value="" disabled>请选择省份</option>
+              <option disabled value="">请选择省份</option>
               <option v-for="province in staticPlace" :key="province.name" :value="province.name">
                 {{ province.name }}
               </option>
             </select>
           </div>
 
-          <div class="form-group" v-if="cities.length > 0">
+          <div v-if="cities.length > 0" class="form-group">
             <label for="city">城市:</label>
             <select
-                v-model="form.city"
                 id="city"
+                v-model="form.city"
                 class="form-control"
                 required
             >
-              <option value="" disabled>请选择城市</option>
+              <option disabled value="">请选择城市</option>
               <option v-for="city in cities" :key="city.name" :value="city.name">
                 {{ city.name }}
               </option>
             </select>
           </div>
 
-          <div class="form-group" v-if="towns.length > 0">
+          <div v-if="towns.length > 0" class="form-group">
             <label for="town">城区:</label>
             <select
-                v-model="form.town"
                 id="town"
+                v-model="form.town"
                 class="form-control"
                 required
             >
-              <option value="" disabled>请选择城区</option>
+              <option disabled value="">请选择城区</option>
               <option v-for="town in towns" :key="town" :value="town">
                 {{ town }}
               </option>
@@ -168,28 +169,28 @@
           <div class="form-group">
             <label for="area">面积 (平方米):</label>
             <input
-                v-model="form.area"
-                type="number"
                 id="area"
+                v-model="form.area"
                 placeholder="请输入面积"
-                step="0.01"
                 required
+                step="0.01"
+                type="number"
             />
           </div>
           <div class="form-group">
             <label>标签:</label>
             <div v-for="(tip, index) in form.tips" :key="index" class="tag-input-group">
               <div class="tag-input-wrapper">
-                <input v-model="form.tips[index]" type="text" placeholder="请输入标签" />
-                <button type="button" class="remove-tag-button" @click="removeTip(index)">
+                <input v-model="form.tips[index]" placeholder="请输入标签" type="text"/>
+                <button class="remove-tag-button" type="button" @click="removeTip(index)">
                   <i class="fa fa-times"></i>X
                 </button>
               </div>
             </div>
             <button
-                type="button"
-                class="add-tag-button"
                 :disabled="!canAddTag"
+                class="add-tag-button"
+                type="button"
                 @click="addTip"
             >
               <i class="fa fa-plus"></i> 添加标签
@@ -197,7 +198,7 @@
           </div>
           <div class="form-group">
             <label>图片上传:</label>
-            <input type="file" multiple @change="handleFileUpload" />
+            <input multiple type="file" @change="handleFileUpload"/>
             <div class="image-preview">
               <div v-for="(picture, index) in form.pictures" class="image-container">
                 <img
@@ -206,15 +207,15 @@
                     alt="预览图片"
                     class="preview-image"
                 />
-                <button type="button" class="remove-image-button" @click="removePicture(index)">
+                <button class="remove-image-button" type="button" @click="removePicture(index)">
                   <i class="fa fa-times"></i>X
                 </button>
               </div>
             </div>
           </div>
           <div class="form-actions">
-            <button type="submit" class="submit-button">提交</button>
-            <button type="button" class="cancel-button" @click="closeModal">取消</button>
+            <button class="submit-button" type="submit">提交</button>
+            <button class="cancel-button" type="button" @click="closeModal">取消</button>
           </div>
         </form>
       </div>
@@ -277,9 +278,9 @@ export default {
       currentPage: 1,
       pageSize: 10,
       form: {
-        province:'',
-        city:'',
-        town:''
+        province: '',
+        city: '',
+        town: ''
       },
       user: {},
       detail: {},
@@ -341,18 +342,18 @@ export default {
           town: this.form.town
         }
       }).then(res => {
-        if (res.code==='0') {
+        if (res.code === '0') {
           this.tableData = res.data.records;
           this.total = res.data.total;
-        }else{
+        } else {
           this.$message.error(res.msg);
         }
       });
     },
     add() {
       this.form = {
-        tips:[],
-        pictures:[]
+        tips: [],
+        pictures: []
       };
       this.showModal = true;
       document.body.style.overflow = "hidden";
@@ -437,7 +438,7 @@ export default {
       }
     },
     addTip() {
-      if (this.form.tips.length > 9){
+      if (this.form.tips.length > 9) {
         this.$message.error(`最多添加10条标签`);
         return;
       }

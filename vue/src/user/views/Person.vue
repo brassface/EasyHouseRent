@@ -1,4 +1,5 @@
 <template>
+  <div style="height: 80px"></div>
   <div class="profile-container">
     <div class="profile-main">
       <div class="profile-header">
@@ -203,24 +204,24 @@
                    :key="item.id"
                    @click="need_showDetails(item)"
                    style="cursor: pointer;">
-                <div class="rent-image-container">
-                  <input
-                      v-if="isBatchDeleting"
-                      type="checkbox"
-                      class="item-checkbox"
-                      :checked="selectedItems.includes(item.id)"
-                      @click.stop="toggleSelectItem(item.id)"
-                  />
-                  <img class="need-listing-image" :src="item.pictures[0] || need_defaultImage" alt="图片" />
-                </div>
+<!--                <div class="rent-image-container">-->
+<!--                  <input-->
+<!--                      v-if="isBatchDeleting"-->
+<!--                      type="checkbox"-->
+<!--                      class="item-checkbox"-->
+<!--                      :checked="selectedItems.includes(item.id)"-->
+<!--                      @click.stop="toggleSelectItem(item.id)"-->
+<!--                  />-->
+<!--                  <img class="need-listing-image" :src="item.pictures[0] || need_defaultImage" alt="图片" />-->
+<!--                </div>-->
                 <div class="need-listing-info">
                   <div class="need-info-top">
                     <h3>{{ item.province + ' ' + item.city + ' ' + item.town }}</h3>
                   </div>
                   <div class="need-info-bottom">
                     <div class="need-info-left">
-                      <p>最高 {{ item.price }} 元/月</p>
-                      <p>最低面积 {{ item.area }} 平米</p>
+                      <p>期望价格 {{ item.price }} 元/月</p>
+                      <p>期望面积 {{ item.area }} 平米</p>
                     </div>
                     <div class="need-user-info">
                       <img class="need-user-avatar" :src="item.image || need_defaultImage" alt="用户头像" />
@@ -242,15 +243,15 @@
               </div>
               <div class="need-modal-body">
                 <div class="need-details">
-                  <div class="need-details-images">
-                    <div v-for="(pic, index) in need_form.pictures.slice(0, 12)" :key="index" class="need-image-wrapper">
-                      <img v-if="pic && pic.length" :src="pic" alt="房源图片" class="need-details-image" />
-                    </div>
-                  </div>
+<!--                  <div class="need-details-images">-->
+<!--                    <div v-for="(pic, index) in need_form.pictures.slice(0, 12)" :key="index" class="need-image-wrapper">-->
+<!--                      <img v-if="pic && pic.length" :src="pic" alt="图片" class="need-details-image" />-->
+<!--                    </div>-->
+<!--                  </div>-->
                   <h1>{{ need_form.province }} {{ need_form.city }} {{ need_form.town }}</h1>
                   <h2 style="margin-top: 10px">
-                    <strong>最高 ￥{{ need_form.price }} / 月</strong>
-                    ·最低 {{ need_form.area }} 平米
+                    <strong>期望价格 ￥{{ need_form.price }} / 月</strong>
+                    ·期望面积 {{ need_form.area }} 平米
                   </h2>
                   <div style="margin-top: 10px">
                     <strong>标签：</strong>
@@ -304,6 +305,17 @@
                   <span class="talk-user-name">{{ item.name.length > 55 ? item.name.slice(0, 52) + '...' : item.name }}</span>
                 </div>
               </div>
+              <div class="talk-item-right">
+                <div class="talk-item-content">
+                  {{ item.content.length > 153 ? item.content.slice(0, 150) + '...' : item.content }}
+                  <span
+                      class="talk-view-more"
+                      @click.stop="talk_showDetails(item)"
+                  >
+            【查看详情】
+            </span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -335,9 +347,9 @@
                   <div style="margin: 30px">
                     <h2>评论</h2>
                     <div class="talk-comment-input">
-                      <img :src="talk_user.image || talk_defaultImage" alt="用户头像" class="talk-user-avatar" />
+                      <img :src="user.image || talk_defaultImage" alt="用户头像" class="talk-user-avatar" />
                       <div class="talk-input-container">
-                        <div class="talk-user-name">{{ talk_user.name }}</div>
+                        <div class="talk-user-name">{{ user.name }}</div>
                         <textarea
                             v-model="talk_newComment.content"
                             placeholder="请输入评论"
@@ -352,7 +364,7 @@
                         <img :src="item.image || talk_defaultImage" alt="用户头像" class="talk-user-avatar"
                              style="position: absolute;top: 0"/>
                         <div class="talk-user-details" style="margin-left: 70px">
-                          <div class="talk-user-name">{{item.name.length > 93 ? talk_form.name.slice(0, 90) + '...' : talk_form.name }}</div>
+                          <div class="talk-user-name">{{item.name.length > 93 ? item.name.slice(0, 90) + '...' : item.name }}</div>
                           <div class="talk-user-talk">
                             <template v-if="item.showFull">
                               {{ item.content }}
@@ -376,7 +388,7 @@
                           </div>
                           <div class="talk-user-date">
                             编辑于 {{ item.date }}
-                            <span v-if="item.author === talk_user.id" class="talk-delete-action" @click="talk_deleteComment(item.id)">删除</span>
+                            <span v-if="item.author === this.user.id" class="talk-delete-action" @click="talk_deleteComment(item.id)">删除</span>
                           </div>
                         </div>
                       </div>
@@ -428,7 +440,7 @@
                 <textarea
                     v-model="form.content"
                     id="content"
-                    placeholder="请输入{{this.activeTab === 'house' ? '房源描述' : this.activeTab === 'demand' ? '需求描述' : '帖子详情'}}"
+                    placeholder="请输入内容"
                     rows="4"
                     required
                 ></textarea>
@@ -442,6 +454,17 @@
                     placeholder="请输入价格"
                     required
                     step="0.01"
+                />
+              </div>
+              <div class="form-group" v-if="this.activeTab === 'house' || this.activeTab === 'demand'">
+                <label for="area">面积 (平方米):</label>
+                <input
+                    v-model="form.area"
+                    type="number"
+                    id="area"
+                    placeholder="请输入面积"
+                    step="0.01"
+                    required
                 />
               </div>
               <div class="form-group">
@@ -458,7 +481,6 @@
                   </option>
                 </select>
               </div>
-
               <div class="form-group" v-if="cities.length > 0">
                 <label for="city">城市:</label>
                 <select
@@ -473,7 +495,6 @@
                   </option>
                 </select>
               </div>
-
               <div class="form-group" v-if="towns.length > 0">
                 <label for="town">城区:</label>
                 <select
@@ -487,17 +508,6 @@
                     {{ town }}
                   </option>
                 </select>
-              </div>
-              <div class="form-group" v-if="this.activeTab === 'house' || this.activeTab === 'demand'">
-                <label for="area">面积 (平方米):</label>
-                <input
-                    v-model="form.area"
-                    type="number"
-                    id="area"
-                    placeholder="请输入面积"
-                    step="0.01"
-                    required
-                />
               </div>
               <div class="form-group">
                 <label>标签:</label>
@@ -518,7 +528,7 @@
                   <i class="fa fa-plus"></i> 添加标签
                 </button>
               </div>
-              <div class="form-group">
+              <div v-if="this.activeTab === 'house' || this.activeTab === 'talk'" class="form-group">
                 <label>图片上传:</label>
                 <input type="file" multiple @change="handleFileUpload" />
                 <div class="image-preview">
@@ -584,7 +594,6 @@ export default {
       need_defaultImage: '/api/files/150',
       need_vis: false,
       need_form: {},
-      talk_user: {},
       talk_search: "",
       talk_tableData: [],
       talk_currentPage: 1,
@@ -847,6 +856,7 @@ export default {
       });
     },
     talk_talkLoad() {
+      console.log(this.talk_form.id)
       request.get(`/api/talk_item`, {
         params: {
           pageNum: this.talk_talkCurrentPage,
@@ -855,8 +865,9 @@ export default {
         },
       }).then((res) => {
         this.talk_talkData = res.data.records;
+        console.log(this.talk_talkData[0].author)
+        console.log(this.user.id)
         this.talk_talkTotal = res.data.total;
-        console.log(this.talk_talkTotal)
       });
     },
     talk_postComment() {
@@ -867,7 +878,7 @@ export default {
       request.post("/api/talk_item", {
         content: this.talk_newComment.content,
         belongItem: this.talk_form.id,
-        author: this.talk_user.id
+        author: this.user.id
       })
           .then((res) => {
             if (res.code === "0") {
@@ -1010,7 +1021,7 @@ export default {
         alert("请输入有效的面积，最多两位小数。");
         return;
       }
-      if (this.form.pictures.length === 0) {
+      if (this.activeModal === "house" && this.form.pictures.length === 0) {
         alert("请上传至少一张图片。");
         return;
       }
@@ -1758,7 +1769,7 @@ input[type="file"] {
 }
 
 .talk-item-middle {
-  flex: 0 0 100px;
+  flex: 0 0 250px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1819,10 +1830,10 @@ input[type="file"] {
 
 .talk-modal-overlay {
   position: fixed;
-  top: 0;
+  top: 60px;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 95%;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;

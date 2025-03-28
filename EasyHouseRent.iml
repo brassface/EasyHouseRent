@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/springboot/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/springboot/src/main/java/com.zzy.demo" isTestSource="false" packagePrefix="com.zzy.demo" />
       <sourceFolder url="file://$MODULE_DIR$/springboot/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/springboot/src/test" isTestSource="true" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
