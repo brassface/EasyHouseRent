@@ -144,7 +144,7 @@
                   background
                   layout="total,  prev, pager, next, jumper"
                   style="margin-top: 10px; margin-bottom: 40px; display: block; justify-content: center;"
-                  @curchange="handleTalkCurrentChange">
+                  @current-change="handleTalkCurrentChange">
               </el-pagination>
             </div>
           </div>
@@ -230,7 +230,7 @@
         layout="total, sizes, prev, pager, next, jumper"
         style="margin-top: 10px; margin-bottom: 40px; display: flex; justify-content: center;"
         @size-change="handleSizeChange"
-        @curchange="handleCurrentChange">
+        @current-change="handleCurrentChange">
     </el-pagination>
   </div>
 </template>
@@ -322,16 +322,8 @@ export default {
       this.showModal = false;
     },
     async handleSubmit() {
-      if (!this.isAreaValid) {
-        alert("请输入有效的面积，最多两位小数。");
-        return;
-      }
-      if (this.form.pictures.length === 0) {
-        alert("请上传至少一张图片。");
-        return;
-      }
       if (this.form.id) {
-        request.put("/api/house_rent", this.form).then(res => {
+        request.put("/api/house_talk", this.form).then(res => {
           if (res.code === '0') {
             this.$message({
               type: "success",
@@ -344,14 +336,14 @@ export default {
             })
           }
           this.load();
-          this.dialogVisible = false;
+          this.closeModal();
         });
       } else {
         this.form.author = this.user.id;
         this.form.name = this.user.name;
         this.form.image = this.user.image;
         this.form.phone = this.user.phone;
-        request.post("/api/house_rent", this.form).then(res => {
+        request.post("/api/house_talk", this.form).then(res => {
           console.log(res);
           if (res.code === '0') {
             this.$message({

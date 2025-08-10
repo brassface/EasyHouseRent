@@ -1,6 +1,6 @@
 <template>
   <div
-      style="height: 70px; width: 100%; background: linear-gradient(90deg, #858d54, #858d54); line-height: 50px; border-bottom: 1px solid #ccc; display: flex; align-items: center; justify-content: space-between;">
+    style="height: 70px; width: 100%; background: linear-gradient(90deg, #858d54, #858d54); line-height: 50px; border-bottom: 1px solid #ccc; display: flex; align-items: center; justify-content: space-between;">
     <div style="width: 300px; padding-left: 30px; font-weight: bold; color: white;">
       <p style="color: white; text-decoration: none;">租房信息平台</p>
     </div>

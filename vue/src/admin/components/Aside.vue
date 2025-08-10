@@ -1,6 +1,6 @@
 <template>
   <el-menu
-      style="width: 200px; min-height: calc(100vh - 50px); background: linear-gradient(90deg, #dad8c3, #dad8c3);"
+      style="width: 200px; height: 100vh; background: linear-gradient(90deg, #dad8c3, #dad8c3);"
       :unique-opened="true"
       default-active="/admin/"
       class="el-menu-vertical-demo"

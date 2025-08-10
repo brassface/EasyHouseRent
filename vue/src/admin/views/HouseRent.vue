@@ -83,7 +83,7 @@
         :total="total"
         background
         layout="total, sizes, prev, pager, next, jumper"
-        @curchange="handleCurrentChange"
+        @current-change="handleCurrentChange"
         @size-change="handleSizeChange">
     </el-pagination>
     <div v-if="showModal" class="push-modal-overlay">

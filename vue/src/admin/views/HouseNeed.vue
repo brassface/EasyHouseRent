@@ -76,7 +76,7 @@
         background
         layout="total, sizes, prev, pager, next, jumper"
         @size-change="handleSizeChange"
-        @curneed-change="handleCurneedChange">
+        @current-change="handleCurneedChange">
     </el-pagination>
     <div v-if="showModal" class="push-modal-overlay">
       <div class="modal-content">

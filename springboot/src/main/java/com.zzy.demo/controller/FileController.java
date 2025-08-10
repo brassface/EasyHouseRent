@@ -45,7 +45,12 @@ public class FileController {
         if (file.getSize() > MAX_FILE_SIZE) {
             return Result.error("-1", "文件超出10MB，请重新选择");
         }
-        String flag = IdUtil.fastSimpleUUID();
+        // 获取原文件名
+        String originalFilename = file.getOriginalFilename();
+        // 获取文件后缀名（包含点）
+        String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
+        // 生成唯一文件名 + 后缀
+        String flag = IdUtil.fastSimpleUUID() + suffix;
         String rootFilePath = System.getProperty("user.dir") + "/springboot/src/main/resources/files/" + flag;
         try {
             FileUtil.writeBytes(file.getBytes(), rootFilePath);
@@ -56,6 +61,7 @@ public class FileController {
         String url = ip + ":" + port + "/files/" + flag;
         return Result.success(url);
     }
+
 
     /**
      * 下载接口

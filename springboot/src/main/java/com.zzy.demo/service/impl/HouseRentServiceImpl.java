@@ -34,7 +34,6 @@ public class HouseRentServiceImpl extends ServiceImpl<HouseRentMapper, HouseRent
     @Override
     public Page<HouseRentDto> pageWithDto(Page<HouseRent> page, Wrapper<HouseRent> wrapper) {
         Page<HouseRent> houseRentPage = this.page(page, wrapper);
-
         List<HouseRentDto> houseRentDtoList = houseRentPage.getRecords().stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
